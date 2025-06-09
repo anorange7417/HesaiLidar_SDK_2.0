@@ -246,7 +246,7 @@ int Udp4_3Parser<T_Point>::DecodePacket(LidarDecodedFrame<T_Point> &frame, const
     pFineAzimuth = reinterpret_cast<const HS_LIDAR_BODY_FINE_AZIMUTH_ST_V3 *>(
         (const unsigned char *)pAzimuth + sizeof(HS_LIDAR_BODY_AZIMUTH_ST_V3));
 
-    int azimuth = u16Azimuth * ANGULAR_RESOLUTION + u8FineAzimuth;
+    int azimuth = u16Azimuth * ANGULAR_RESOLUTION + u8FineAzimuth; // final unit of azimuth is [0.01deg/256]
     int field = 0;
     for (int i = 0; i < pHeader->GetLaserNum(); i++) {
       if (this->get_firetime_file_) {
@@ -375,7 +375,7 @@ int Udp4_3Parser<T_Point>::ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, i
         azimuth = ((Azimuth + CIRCLE - m_PandarAT_corrections.l.start_frame[field]) * 2 -
                          m_PandarAT_corrections.l.azimuth[i] +
                          m_PandarAT_corrections.GetAzimuthAdjustV3(i, Azimuth) * kFineResolutionInt);
-        azimuth = (CIRCLE + azimuth) % CIRCLE;
+        azimuth = (CIRCLE + azimuth) % CIRCLE; // this is wrapper that guarantee that azimuth value is between 0~CIRCLE [0.01deg/256]. CIRCLE is 36000*256, so the upper limit is 360deg
       }
       if (frame.config.fov_start != -1 && frame.config.fov_end != -1)
       {
@@ -393,7 +393,7 @@ int Udp4_3Parser<T_Point>::ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, i
       setX(frame.points[point_index], x);
       setY(frame.points[point_index], y);
       setZ(frame.points[point_index], z);
-      setA(frame.points[point_index], azimuth / 256.0f / 100.0f);
+      (distance > 7.2f) ? setA(frame.points[point_index], azimuth / 2560) : setA(frame.points[point_index], azimuth / 5120); // default packet resolution is [0.01deg/256], so spec sheet's horizontaol resolution(far field) 0.1deg is 2560 [0.01deg/256]
       elevation /= (256.0 * 100.0);
       elevation = (elevation > 180.0) ? elevation-360.0f : elevation; 
       setE(frame.points[point_index], elevation);
