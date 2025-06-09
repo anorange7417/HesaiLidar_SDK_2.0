@@ -120,10 +120,10 @@ typedef struct LidarPointXYZAEIRT
     float x;
     float y;
     float z;
-    float azi;
     float ele;
     float intensity;
     uint16_t ring;
+    int32_t azi;
     double timestamp;
 } LidarPointXYZAEIRT;
 
