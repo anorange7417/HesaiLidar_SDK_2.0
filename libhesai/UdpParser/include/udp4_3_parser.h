@@ -143,6 +143,8 @@ class Udp4_3Parser : public GeneralParser<T_Point> {
   // param packet is the decoded packet; xyzi of points after computed is puted in frame    
   virtual int ComputeXYZI(LidarDecodedFrame<T_Point> &frame, int packet_index);
 
+  virtual int ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, int packet_index);
+
   virtual void ParserFaultMessage(UdpPacket& udp_packet, FaultMessageInfo &fault_message_info);
   PandarATCorrections m_PandarAT_corrections;
 

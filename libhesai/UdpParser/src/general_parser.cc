@@ -63,6 +63,12 @@ int GeneralParser<T_Point>::ComputeXYZI(LidarDecodedFrame<T_Point> &frame, int p
   return 0;
 }
 template <typename T_Point>
+int GeneralParser<T_Point>::ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, int packet_index) {
+  (void)frame;
+  (void)packet_index;
+  return 0;
+}
+template <typename T_Point>
 void GeneralParser<T_Point>::FrameNumAdd() {
   this->compute_packet_num++;
 }

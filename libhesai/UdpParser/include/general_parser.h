@@ -75,6 +75,8 @@ namespace lidar
 DEFINE_MEMBER_CHECKER(x)
 DEFINE_MEMBER_CHECKER(y)
 DEFINE_MEMBER_CHECKER(z)
+DEFINE_MEMBER_CHECKER(azi)
+DEFINE_MEMBER_CHECKER(ele)
 DEFINE_MEMBER_CHECKER(intensity)
 DEFINE_MEMBER_CHECKER(ring)
 DEFINE_MEMBER_CHECKER(timestamp)
@@ -113,6 +115,28 @@ template <typename T_Point>
 inline typename std::enable_if<PANDAR_HAS_MEMBER(T_Point, z)>::type setZ(T_Point& point, const float& value)
 {
   point.z = value;
+}
+
+template <typename T_Point>
+inline typename std::enable_if<!PANDAR_HAS_MEMBER(T_Point, azi)>::type setA(T_Point& point, const float& value)
+{
+}
+
+template <typename T_Point>
+inline typename std::enable_if<PANDAR_HAS_MEMBER(T_Point, azi)>::type setA(T_Point& point, const float& value)
+{
+  point.azi = value;
+}
+
+template <typename T_Point>
+inline typename std::enable_if<!PANDAR_HAS_MEMBER(T_Point, ele)>::type setE(T_Point& point, const float& value)
+{
+}
+
+template <typename T_Point>
+inline typename std::enable_if<PANDAR_HAS_MEMBER(T_Point, ele)>::type setE(T_Point& point, const float& value)
+{
+  point.ele = value;
 }
 
 template <typename T_Point>
@@ -306,6 +330,8 @@ class GeneralParser {
   // compute xyzi of points from decoded packet
   // param packet is the decoded packet; xyzi of points after computed is puted in frame  
   virtual int ComputeXYZI(LidarDecodedFrame<T_Point> &frame, int packet_index);
+  // Custom for spherical projection
+  virtual int ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, int packet_index);
   // Under thread safety, increase the points_num in the frame
   void FrameNumAdd();
 

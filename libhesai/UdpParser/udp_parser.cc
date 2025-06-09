@@ -369,7 +369,8 @@ int UdpParser<T_Point>::ComputeXYZI(LidarDecodedFrame<T_Point> &frame, int packe
   if (parser_ == nullptr) {
     return -1;
   } else {
-    return parser_->ComputeXYZI(frame, packet_index);
+    //return parser_->ComputeXYZI(frame, packet_index);
+    return parser_->ComputeRawAziEle(frame, packet_index);
   }
 }
 

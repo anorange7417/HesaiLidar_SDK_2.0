@@ -36,6 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udp_protocol_v4_3.h"
 #include "udp_protocol_header.h"
 #include "udp_parser.h"
+#include "opencv2/core.hpp"
 
 using namespace hesai::lidar;
 template<typename T_Point>
@@ -329,6 +330,73 @@ int Udp4_3Parser<T_Point>::ComputeXYZI(LidarDecodedFrame<T_Point> &frame, int pa
       setX(frame.points[point_index], x);
       setY(frame.points[point_index], y);
       setZ(frame.points[point_index], z);
+      setIntensity(frame.points[point_index], frame.pointData[point_index].reflectivities);
+      setConfidence(frame.points[point_index], frame.pointData[point_index].confidence);
+      setTimestamp(frame.points[point_index], double(frame.sensor_timestamp[packet_index]) / kMicrosecondToSecond);
+      setRing(frame.points[point_index], static_cast<uint16_t>(i));
+    }
+  }
+  GeneralParser<T_Point>::FrameNumAdd();
+  return 0;
+}
+
+template <typename T_Point>
+int Udp4_3Parser<T_Point>::ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, int packet_index)
+{
+  for (int blockid = 0; blockid < frame.block_num; blockid++) {
+    // T_Point point;
+    int Azimuth = int(frame.pointData[packet_index * frame.per_points_num + blockid * frame.laser_num].azimuth);
+    int field = 0;
+    if ( this->get_correction_file_) {
+      int count = 0;
+      while (count < m_PandarAT_corrections.header.frame_number &&
+             (((Azimuth + CIRCLE - m_PandarAT_corrections.l.start_frame[field]) % CIRCLE +
+             (m_PandarAT_corrections.l.end_frame[field] + CIRCLE - Azimuth) % CIRCLE) !=
+             (m_PandarAT_corrections.l.end_frame[field] + CIRCLE -
+             m_PandarAT_corrections.l.start_frame[field]) % CIRCLE)) {
+        field = (field + 1) % m_PandarAT_corrections.header.frame_number;
+        count++;
+      }
+      if (count >= m_PandarAT_corrections.header.frame_number) continue;
+    }
+    
+    auto elevation = 0;
+    int azimuth = 0;
+
+    for (int i = 0; i < frame.laser_num; i++) {
+      int point_index = packet_index * frame.per_points_num + blockid * frame.laser_num + i;  
+      float distance = static_cast<float>(frame.pointData[point_index].distances * frame.distance_unit);
+      Azimuth = frame.pointData[point_index].azimuth;
+      if (this->get_correction_file_) {
+        elevation = (m_PandarAT_corrections.l.elevation[i] +
+                   m_PandarAT_corrections.GetElevationAdjustV3(i, Azimuth) *
+                       kFineResolutionInt );
+        elevation = (CIRCLE + elevation) % CIRCLE;
+        azimuth = ((Azimuth + CIRCLE - m_PandarAT_corrections.l.start_frame[field]) * 2 -
+                         m_PandarAT_corrections.l.azimuth[i] +
+                         m_PandarAT_corrections.GetAzimuthAdjustV3(i, Azimuth) * kFineResolutionInt);
+        azimuth = (CIRCLE + azimuth) % CIRCLE;
+      }
+      if (frame.config.fov_start != -1 && frame.config.fov_end != -1)
+      {
+        int fov_transfer = azimuth / 256 / 100;
+        if (fov_transfer < frame.config.fov_start || fov_transfer > frame.config.fov_end){//不在fov范围continue
+          memset(&frame.points[point_index], 0, sizeof(T_Point));
+          continue;
+        }
+      }
+      float xyDistance = distance * this->cos_all_angle_[(elevation)];
+      float x = xyDistance * this->sin_all_angle_[(azimuth)];
+      float y = xyDistance * this->cos_all_angle_[(azimuth)];
+      float z = distance * this->sin_all_angle_[(elevation)];
+      this->TransformPoint(x, y, z);
+      setX(frame.points[point_index], x);
+      setY(frame.points[point_index], y);
+      setZ(frame.points[point_index], z);
+      setA(frame.points[point_index], azimuth / 256.0f / 100.0f);
+      elevation /= (256.0 * 100.0);
+      elevation = (elevation > 180.0) ? elevation-360.0f : elevation; 
+      setE(frame.points[point_index], elevation);
       setIntensity(frame.points[point_index], frame.pointData[point_index].reflectivities);
       setConfidence(frame.points[point_index], frame.pointData[point_index].confidence);
       setTimestamp(frame.points[point_index], double(frame.sensor_timestamp[packet_index]) / kMicrosecondToSecond);
