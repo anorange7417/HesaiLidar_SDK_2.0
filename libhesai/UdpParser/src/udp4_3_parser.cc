@@ -393,7 +393,7 @@ int Udp4_3Parser<T_Point>::ComputeRawAziEle(LidarDecodedFrame<T_Point> &frame, i
       setX(frame.points[point_index], x);
       setY(frame.points[point_index], y);
       setZ(frame.points[point_index], z);
-      (distance > 7.2f) ? setA(frame.points[point_index], azimuth / 5120) : setA(frame.points[point_index], azimuth / 2560); // default packet resolution is [0.01deg/256], so spec sheet's horizontaol resolution(far field) 0.1deg is 2560 [0.01deg/256]
+      setA(frame.points[point_index], azimuth / 2560); // default packet resolution is [0.01deg/256], so spec sheet's horizontaol resolution(far field) 0.1deg is 2560 [0.01deg/256]
       elevation /= (256.0 * 100.0);
       elevation = (elevation > 180.0) ? elevation-360.0f : elevation; 
       setE(frame.points[point_index], elevation);
