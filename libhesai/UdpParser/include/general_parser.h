@@ -141,12 +141,12 @@ inline typename std::enable_if<PANDAR_HAS_MEMBER(T_Point, azi)>::type setA(T_Poi
 }
 
 template <typename T_Point>
-inline typename std::enable_if<!PANDAR_HAS_MEMBER(T_Point, ele)>::type setE(T_Point& point, const float& value)
+inline typename std::enable_if<!PANDAR_HAS_MEMBER(T_Point, ele)>::type setE(T_Point& point, const int& value)
 {
 }
 
 template <typename T_Point>
-inline typename std::enable_if<PANDAR_HAS_MEMBER(T_Point, ele)>::type setE(T_Point& point, const float& value)
+inline typename std::enable_if<PANDAR_HAS_MEMBER(T_Point, ele)>::type setE(T_Point& point, const int& value)
 {
   point.ele = value;
 }
