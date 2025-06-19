@@ -115,18 +115,19 @@ typedef struct LidarPointXYZIRT
     double timestamp;  
 } LidarPointXYZIRT;
 
-typedef struct LidarPointXYZDIRAET
+typedef struct LidarPointXYZDICRAET
 {
     float x;
     float y;
     float z;
     float d;
     float intensity;
+    uint8_t confidence;
     uint16_t ring;
     int32_t azi;
     int32_t ele;
     double timestamp;
-} LidarPointXYZDIRAET;
+} LidarPointXYZDICRAET;
 
 typedef struct LidarPointXYZICRT
 {
