@@ -151,16 +151,11 @@ typedef struct InputParam
 
   std::string ros_send_packet_topic = NULL_TOPIC;
   std::string ros_send_point_topic = NULL_TOPIC;
-  std::string ros_send_rng_img_topic_near_d = NULL_TOPIC; 
-  std::string ros_send_rng_img_topic_near_i = NULL_TOPIC;
-  std::string ros_send_rng_img_topic_near_c = NULL_TOPIC;
-  std::string ros_send_rng_img_topic_far_d = NULL_TOPIC; 
-  std::string ros_send_rng_img_topic_far_i = NULL_TOPIC;
-  std::string ros_send_rng_img_topic_far_c = NULL_TOPIC;
-  // this was experimental, but proved to be useless, because sphericla projection is point-wise, whereas lidar has channle-wise detection functionality
-  std::string ros_send_rng_img_topic_comb_d = NULL_TOPIC; 
-  std::string ros_send_rng_img_topic_comb_i = NULL_TOPIC;
-  std::string ros_send_rng_img_topic_comb_c = NULL_TOPIC;
+
+  std::string ros_send_rng_img_topic_d = NULL_TOPIC; 
+  std::string ros_send_rng_img_topic_i = NULL_TOPIC;
+  std::string ros_send_rng_img_topic_c = NULL_TOPIC;
+  
   std::string ros_send_packet_loss_topic = NULL_TOPIC; 
   std::string ros_send_ptp_topic = NULL_TOPIC;
   std::string ros_send_correction_topic = NULL_TOPIC;
